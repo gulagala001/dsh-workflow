@@ -1,3 +1,4 @@
+import { assembleAssistantStream } from '@deepseek-ai/dsh-llm';
 import { createHash } from 'node:crypto';
 
 /** An explicit trailing +500k / +1m target in a human message. */
@@ -88,12 +89,13 @@ export class WorkflowBudget {
     if (!owner) return;
     const state = this.store.state(owner.sessionId), pool = state.workflowBudget?.pools[owner.poolId];
     if (!pool || (Object.hasOwn(pool.watermarks, session.id) && pool.watermarks[session.id] >= event.seq)) return;
-    const usage = event.data.usage ?? event.data.stream?.findLast(chunk => chunk.type === 'usage')?.usage;
+    const output = assembleAssistantStream(event.data.stream ?? []);
+    const usage = event.data.usage ?? output.usage;
     const count = usage?.outputTokens;
     // Some adapters fill absent usage with zero. Nonempty generated output
     // cannot establish a zero-token measurement for an enforced target.
     const hasOutput = event.data.message?.content?.some(block => block.type === 'tool-call' || Boolean(block.text))
-      || event.data.stream?.some(chunk => ['text-delta', 'reasoning-delta', 'tool-call-delta'].includes(chunk.type) && (chunk.text || chunk.argumentsDelta || chunk.name));
+      || output.blocks().some(block => block.type === 'tool-call' || Boolean(block.text));
     if (Number.isSafeInteger(count) && count >= 0 && !(count === 0 && hasOutput) && Number.isSafeInteger(pool.spent + count)) pool.spent += count;
     else pool.unmetered++;
     Object.defineProperty(pool.watermarks, session.id, { value: event.seq, writable: true, configurable: true, enumerable: true });

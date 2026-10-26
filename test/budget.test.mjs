@@ -32,3 +32,13 @@ test('one turn shares reported output across descendants and remains idempotent 
   restarted.observe(child, response(3, 5)); assert.equal(restarted.snapshot(grandchild).spent, 15);
   restarted.observe(child, response(8, 4)); assert.equal(restarted.snapshot(f.root).spent, 19);
 });
+
+test('native V4 nested stream usage charges the output pool instead of marking it unmetered', async t => {
+  const f=await fixture(t);
+  const event={seq:2,type:'assistant/message',data:{turn:1,step:1,message:{source:{kind:'model'}},stream:[
+    {type:'chunk',time:1,chunk:{type:'text-delta',index:0,text:'answer'}},
+    {type:'chunk',time:2,chunk:{type:'usage',usage:{inputTokens:10,outputTokens:37,totalTokens:47}}},
+  ]}};
+  f.budget.observe(f.root,event);f.budget.observe(f.root,event);
+  assert.deepEqual(f.budget.snapshot(f.root),{total:1000,spent:37,unmetered:0});
+});
