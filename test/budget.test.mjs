@@ -42,3 +42,21 @@ test('native V4 nested stream usage charges the output pool instead of marking i
   f.budget.observe(f.root,event);f.budget.observe(f.root,event);
   assert.deepEqual(f.budget.snapshot(f.root),{total:1000,spent:37,unmetered:0});
 });
+
+test('one attempt replaces a cumulative output receipt and retry opens a new charge', async t => {
+  const f=await fixture(t);
+  const settled=(seq,output)=>({seq,type:'assistant/attempt',data:{turn:1,step:1,usage:{inputTokens:10,outputTokens:output,totalTokens:output+10},stream:[]}});
+  f.budget.observe(f.root,settled(1,5));f.budget.observe(f.root,settled(2,9));
+  assert.equal(f.budget.snapshot(f.root).spent,9);
+  f.budget.observe(f.root,{seq:3,type:'llm/retry-started',data:{turn:1,step:1}});
+  f.budget.observe(f.root,settled(4,3));assert.equal(f.budget.snapshot(f.root).spent,12);
+});
+
+test('failed settlement persistence can retry the same event without losing its charge', async t => {
+  const f=await fixture(t),save=f.store.save.bind(f.store),event=response(2,37);
+  f.store.save=()=>{throw Error('disk unavailable');};
+  assert.throws(()=>f.budget.observe(f.root,event),/disk unavailable/);
+  assert.deepEqual(f.budget.snapshot(f.root),{total:1000,spent:0,unmetered:0});
+  f.store.save=save;f.budget.observe(f.root,event);
+  assert.equal(f.budget.snapshot(f.root).spent,37);
+});

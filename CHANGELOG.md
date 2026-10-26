@@ -168,7 +168,7 @@ Install the fixed package matching the complete DSH version through **Plugins �
 
 ### 问题修复
 
-- 通过原生流解析读取 V4 嵌套用量回执，避免已有输出计量仍被当作未计量而阻止派发；内置同步记录源码提交。
+- 通过原生流解析读取 V4 嵌套用量回执，避免已有输出计量仍被当作未计量而阻止派发；同一次尝试的累计回执替换旧值，真正重试独立计量；记账保存失败不提交内存状态。内置同步记录源码提交。
 
 <a id="en-unreleased"></a>
 
@@ -176,7 +176,7 @@ Install the fixed package matching the complete DSH version through **Plugins �
 
 ### Bug Fixes
 
-- Reads V4 nested usage through the native stream reader so measured output no longer blocks dispatch as unmetered. Embedded synchronization records the source commit.
+- Reads V4 nested usage through the native stream reader so measured output no longer blocks dispatch as unmetered. Cumulative receipts replace prior samples, actual retries are charged separately, and failed persistence does not commit in-memory accounting. Embedded synchronization records the source commit.
 
 ## 安装 / Installation
 
