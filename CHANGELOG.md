@@ -1,10 +1,12 @@
-# DSH Workflow 0.1.6 · DSH 0.2.1-rc.5
+# DSH Workflow 0.1.6 · DSH 0.2.1-rc.5 · 未发布 / Unreleased
 
 [中文](#zh-016) | [English](#en-016)
 
 <a id="zh-016"></a>
 
 ## 中文
+
+本版适配与验收正在进行，尚未发布。
 
 ### 其他变更
 
@@ -14,21 +16,19 @@
 
 ## English
 
+This adaptation is under validation and has not been published.
+
 ### Other Changes
 
 - Target DSH **0.2.1-rc.5** exactly with matching SDK, build inputs and complete dependency locks. Each package is specific to its host.
 
 ## 安装 / Installation
 
-精确宿主为 **DSH 0.2.1-rc.5**。在 **插件 → 添加插件** 中使用下方固定包。保留 profile、配置与会话，按宿主提示在任务结束后重新加载。
+待发布构建精确匹配 **DSH 0.2.1-rc.5**。当前公开安装包仍用于 **DSH 0.2.1-rc.3**，请勿混用。
 
-The exact host is **DSH 0.2.1-rc.5**. Use the fixed package below in **Plugins → Add plugin**. Preserve profiles, configuration and conversations; reload after active tasks finish if requested.
+The unpublished build targets **DSH 0.2.1-rc.5** exactly. The current public package remains for **DSH 0.2.1-rc.3**.
 
-| DSH | 固定安装包 / Fixed package | SHA256SUMS |
-| --- | --- | --- |
-| 0.2.1-rc.5 | [DSH Workflow 0.1.6](https://github.com/gulagala001/dsh-workflow/releases/download/v0.1.6-dsh.0.2.1-rc.5/dsh-workflow-plus-0.1.6-dsh.0.2.1-rc.5.tgz) | [SHA256SUMS](https://github.com/gulagala001/dsh-workflow/releases/download/v0.1.6-dsh.0.2.1-rc.5/SHA256SUMS) |
-
-[安装指南 / Installation guide](https://github.com/gulagala001/dsh-workflow/blob/main/docs/install.md)
+[当前公开包 / Current published package](https://github.com/gulagala001/dsh-workflow/releases/download/v0.1.5-dsh.0.2.1-rc.3/dsh-workflow-plus-0.1.5-dsh.0.2.1-rc.3.tgz) · [SHA256SUMS](https://github.com/gulagala001/dsh-workflow/releases/download/v0.1.5-dsh.0.2.1-rc.3/SHA256SUMS)
 
 ---
 
