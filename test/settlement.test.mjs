@@ -13,14 +13,17 @@ import dependencies from '../lib/host/dependencies.json' with { type: 'json' };
 
 const require = createRequire(import.meta.url);
 const persistence = createRequire(require.resolve('@deepseek-ai/dsh-session-persistence-jsonl/package.json'));
-const modules = new Map();
-for (const name of dependencies['workflow-ptc']) {
+async function importHostModule(name) {
   let url = name;
   if (!isBuiltin(name)) {
     try { url = pathToFileURL(require.resolve(name)).href; }
     catch { url = pathToFileURL(persistence.resolve(name)).href; }
   }
-  const value = await import(url);
+  return import(url);
+}
+const modules = new Map();
+for (const name of dependencies['workflow-ptc']) {
+  const value = await importHostModule(name);
   modules.set(name, ['koffi', '@deepseek-ai/schemastery'].includes(name) ? value.default : { ...value, __esModule: true });
 }
 
@@ -43,7 +46,7 @@ async function fixture(t, { fault, body = "await agent('one'); await agent('two'
       return typeof value === 'function' ? value.bind(target) : value;
     } });
   } };
-  const host = createModule(name => name === 'node:fs/promises' ? fileSystem : modules.get(name));
+  const host = createModule(name => name === 'node:fs/promises' ? fileSystem : modules.get(name), importHostModule);
   const parent = { session: { id: 'parent', header: {}, requestHeader: () => ({ config: {} }) } };
   const runtime = {
     resolve: request => request,
@@ -202,7 +205,7 @@ test('even an undefined disposal rejection is a visible unsafe cleanup failure',
 
 
 for (const nativeFailure of [false, true]) test(`real worktree receipt failure preserves native quiescence (${nativeFailure ? 'failed' : 'stopped'})`, async t => {
-  const directory = await fs.mkdtemp(join(tmpdir(), 'workflow-worktree-settlement-'));
+  const directory = await fs.realpath(await fs.mkdtemp(join(tmpdir(), 'workflow-worktree-settlement-')));
   const git = args => execFileSync('git', args, { cwd: directory, stdio: 'pipe' });
   git(['init', '-q']);
   await fs.writeFile(join(directory, 'file.txt'), 'fixture\n');
@@ -212,7 +215,7 @@ for (const nativeFailure of [false, true]) test(`real worktree receipt failure p
   const spawn = createSpawnModule(name => name === 'node:fs/promises' ? { ...fs, async writeFile(path, ...args) {
     if (failReceipt && String(path).endsWith('.json')) throw new Error('worktree receipt disk full');
     return fs.writeFile(path, ...args);
-  } } : modules.get(name));
+  } } : modules.get(name), importHostModule);
   const listeners = [], cleanups = [], artifacts = [];
   const native = { prepareContinuable: async () => ({}) };
   const providers = new Map([['spawn', native]]);
