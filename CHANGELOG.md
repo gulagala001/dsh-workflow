@@ -285,7 +285,7 @@ Install the fixed package matching the complete DSH version through **Plugins �
 - Workflow plugin: saved scripts, one nested level, successful-prefix resume, shared output targets, worktrees, native Jobs and workflow panels.
 - Exact DSH 0.2.1-rc.2 support; package `dsh-workflow-plus`, MIT license and pinned GitHub Release distribution.
 
-完整双语发行说明 / Full bilingual release notes: [docs/releases.md](docs/releases.md).
+完整双语发行说明 / Full bilingual release notes: [docs/releases.md](https://github.com/gulagala001/dsh-workflow/releases).
 
 
 # DSH Workflow 未发布 / Unreleased · DSH 0.2.1-rc.3
