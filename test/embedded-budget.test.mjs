@@ -52,12 +52,15 @@ test('captured embedded budgets account for children started after the embedding
   };
   embeddedBudget.admit(parent, input);
   runtime.workflowBudget.admit(parent, input);
-  const captured = runtime.support(parent).workflowBudget.capture(parent);
+  const support = runtime.support(parent);
+  const captured = support.workflowBudget.capture(parent);
+  const release = runtime.retain('test-run', support);
+  const owner = {...captured.owner, runId:'test-run'};
   const startChild = id => {
     const session = { id, header: { origin: 'subagent', parentSession: parent.id } };
     ctx.emit('agent/created', { agent: { session } });
     // The spawn provider passes the initiating run's captured owner.
-    runtime.support(parent, captured.owner).workflowBudget.attach(session, captured.owner);
+    runtime.support(parent, owner).workflowBudget.attach(session, captured.owner);
     return session;
   };
   const settle = (session, outputTokens) => ctx.emit('session/event', session, {
@@ -77,4 +80,6 @@ test('captured embedded budgets account for children started after the embedding
   // Duplicate delivery and simultaneous independent observation cannot charge twice.
   settle(lateChild, 9);
   assert.equal(captured.snapshot().spent, 12);
+  release();
+  assert.equal(runtime.support(parent, owner).store.dir, runtime.store.dir);
 });
