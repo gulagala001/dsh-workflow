@@ -64,7 +64,7 @@ async function fixture(t, { fault, body = "await agent('one'); await agent('two'
       },
     };
   };
-  const subagents = { startActivation: request => start(request.request), getProvider: () => ({ startWorkflow: async request => {
+  const subagents = { startActivation: request => start(request), getProvider: () => ({ startWorkflow: async request => {
     const activation = await start(request);
     return { ...activation, quiesced: true };
   } }) };
@@ -226,7 +226,7 @@ for (const nativeFailure of [false, true]) test(`real worktree receipt failure p
       getProvider: id => providers.get(id),
       registerProvider(provider) { providers.set(provider.name, provider); return () => providers.delete(provider.name); },
       async startActivation(input) {
-        await providers.get(input.provider).prepareContinuable({ ...input.request, sessionId: input.childId, signal: input.signal });
+        await providers.get(input.provider).prepareContinuable({ ...input, sessionId: input.childId, signal: input.signal });
         const agent = { id: input.childId, ctx: { get: () => ({ set: async () => {} }), systemPrompt: { context() {}, getContextOrder: () => 0 } } };
         for (const listener of [...listeners]) await listener({ agent, signal: input.signal });
         return { childId: input.childId, result: Promise.resolve({ stopReason: 'completed', output: [] }), async dispose() {
