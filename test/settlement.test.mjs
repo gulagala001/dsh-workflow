@@ -260,3 +260,12 @@ for (const nativeFailure of [false, true]) test(`real worktree receipt failure p
   if (nativeFailure) await fs.access(artifacts[0].path);
   else await assert.rejects(fs.access(artifacts[0].path), { code: 'ENOENT' });
 });
+
+test('journal end forbids subsequent children and duplicate run boundaries', async t => {
+  const f = await fixture(t);
+  const parse = rows => f.host.readJournal(rows.map(row=>JSON.stringify(row)+'\n').join(''));
+  assert.throws(()=>parse([{type:'run'},{type:'end'},{type:'start',seq:1,key:'x'}]),/boundary/);
+  assert.throws(()=>parse([{type:'run'},{type:'run'}]),/Duplicate/);
+  assert.equal(parse([{type:'run'},{type:'start',seq:1,key:'x'}]).size,1);
+  await f.run.result;
+});
