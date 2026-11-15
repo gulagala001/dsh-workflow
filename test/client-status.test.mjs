@@ -28,6 +28,8 @@ test('live, stopped and failed workflow states retain native ownership and durab
   const node = { id: 'run', data: { status: 'interrupted', phases: [{ members: [{ status: 'interrupted' }, { status: 'completed' }] }] } };
   const job = { id: 'job-1', kind: 'workflow', owner: 'session', status: 'running' };
   assert.equal(liveWorkflowData(node, runs, [job], 'session').status, 'running');
+  const partial = workflowJobs([{ ...start, data: { ...start.data, jobId: job.id } }]);
+  assert.equal(liveWorkflowData(node, partial, [job], 'session').status, 'running');
   assert.equal(liveWorkflowData(node, runs, [{...job, status:'stopping'}], 'session').status, 'stopping');
   assert.equal(liveWorkflowData(node, runs, [job], 'other'), node.data);
   assert.equal(liveWorkflowData(node, runs, [{ ...job, status: 'completed' }], 'session'), node.data);
