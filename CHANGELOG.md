@@ -1,7 +1,5 @@
 # DSH Workflow 0.1.14 · DSH 0.2.2-rc.3
 
-**未发布 / Unreleased.**
-
 [中文](#zh-0114) · [English](#en-0114)
 
 <a id="zh-0114"></a>
